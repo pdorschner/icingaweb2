@@ -186,6 +186,8 @@ class Module
 
     protected $cssRequires = [];
 
+    protected $jsRequires = [];
+
     /**
      * Routes to add to the route chain
      *
@@ -511,6 +513,33 @@ class Module
     {
         $this->launchConfigScript();
         return $this->cssRequires;
+    }
+
+    protected function requireJsFile($path)
+    {
+        $assetPaths = getenv('ICINGAWEB_ADDITIONAL_ASSETS');
+        foreach (explode(':', $assetPaths) as $assetPath) {
+            $filePath = join(DIRECTORY_SEPARATOR, [$assetPath, $path]);
+            if (is_readable($filePath) && is_file($filePath)) {
+                $this->jsRequires[] = $filePath;
+                return true;
+            }
+        }
+
+        // TODO: Error logging? New way of "there's something wrong"?
+        trigger_error(sprintf('JS file "%s" not found in path(s): %s', $path, $assetPaths), E_USER_ERROR);
+    }
+
+    public function requiresJs()
+    {
+        $this->launchConfigScript();
+        return ! empty($this->jsRequires);
+    }
+
+    public function getJsRequires()
+    {
+        $this->launchConfigScript();
+        return $this->jsRequires;
     }
 
     /**
