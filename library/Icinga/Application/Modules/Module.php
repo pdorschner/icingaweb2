@@ -184,6 +184,8 @@ class Module
      */
     protected $jsFiles = array();
 
+    protected $cssRequires = [];
+
     /**
      * Routes to add to the route chain
      *
@@ -482,6 +484,33 @@ class Module
         }
         // Throws ProgrammingError when the module is not yet loaded
         return $manager->getModule($name);
+    }
+
+    protected function requireCssFile($path)
+    {
+        $assetPaths = getenv('ICINGAWEB_ADDITIONAL_ASSETS');
+        foreach (explode(':', $assetPaths) as $assetPath) {
+            $filePath = join(DIRECTORY_SEPARATOR, [$assetPath, $path]);
+            if (is_readable($filePath) && is_file($filePath)) {
+                $this->cssRequires[] = $filePath;
+                return true;
+            }
+        }
+
+        // TODO: Error logging? New way of "there's something wrong"?
+        trigger_error(sprintf('CSS file "%s" not found in path(s): %s', $path, $assetPaths), E_USER_ERROR);
+    }
+
+    public function requiresCss()
+    {
+        $this->launchConfigScript();
+        return ! empty($this->cssRequires);
+    }
+
+    public function getCssRequires()
+    {
+        $this->launchConfigScript();
+        return $this->cssRequires;
     }
 
     /**
