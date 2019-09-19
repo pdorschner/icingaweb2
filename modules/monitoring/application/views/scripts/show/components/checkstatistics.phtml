@@ -8,7 +8,7 @@ $activeChecksEnabled = (bool) $object->active_checks_enabled;
     <td data-base-target="_self">
 <?php if ((int) $object->state !== 99): ?>
         <?= $this->timeAgo($object->last_check) ?>
-    <?php if ($object->next_update < time()): ?>
+    <?php if ($object->next_update < time() && $object->next_check < time()): ?>
         <?= $this->icon('circle', $this->translate('Check result is late'), array('class' => 'icon-stateful state-critical')) ?>
     <?php endif ?>
 <?php endif ?>
